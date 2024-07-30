@@ -1,3 +1,3 @@
 <template>
-  <div>init</div>
+  <div class="bg-white w-full">init</div>
 </template>

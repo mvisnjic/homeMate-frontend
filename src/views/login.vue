@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white p-12 lg:p-32 lg:w-3/6 lg:h-3/6 self-center rounded-md flex flex-col gap-6 m-auto text-lg md:text-2xl"
+    class="bg-white p-12 lg:p-24 w-1/2 h-3/6 self-center rounded-md flex flex-col gap-6 m-auto text-lg md:text-2xl"
   >
     <div class="flex flex-col lg:flex-row gap-2">
       <label>username:</label>
@@ -36,7 +36,7 @@
 import { Auth } from "../services";
 
 export default {
-  name: "signIn",
+  name: "login",
   data() {
     return {
       username: "",

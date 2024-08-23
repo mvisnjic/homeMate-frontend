@@ -3,6 +3,10 @@ import index from "/src/views/index.vue";
 import login from "/src/views/login.vue";
 import home from "/src/views/home.vue";
 import chat from "/src/views/chat.vue";
+import about from "/src/views/about.vue";
+import settings from "/src/views/settings.vue";
+import myprofile from "/src/views/myprofile.vue";
+import notfound from "/src/views/notfound.vue";
 import { Auth } from "../services";
 const defaultTitle = "homeMate";
 
@@ -31,6 +35,30 @@ const routes = [
     component: chat,
     meta: { title: "chat - " + defaultTitle },
   },
+  {
+    path: "/about",
+    name: "about",
+    component: about,
+    meta: { title: "about - " + defaultTitle },
+  },
+  {
+    path: "/settings",
+    name: "settings",
+    component: settings,
+    meta: { title: "settings - " + defaultTitle },
+  },
+  {
+    path: "/my-profile",
+    name: "myprofile",
+    component: myprofile,
+    meta: { title: "my-profile - " + defaultTitle },
+  },
+  {
+        path: '/:pathMatch(.*)*',
+        name: 'notfound',
+        component: notfound,
+        meta: { title: "404 oops - " + defaultTitle },
+    },
 ];
 const router = createRouter({
   history: createWebHistory(),
@@ -51,7 +79,7 @@ router.afterEach((to) => {
 });
 
 router.beforeEach(async (to, from, next) => {
-  const publicPages = ["/login", "/"];
+  const publicPages = ["/login", "/", "/about"];
   const authRequired = !publicPages.includes(to.path);
   const user = await Auth.getUser();
 

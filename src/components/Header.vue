@@ -1,13 +1,10 @@
-<script setup>
-// loadRouteLocation
-</script>
 <template>
-  <div class="fixed top-0 px-12 py-8 w-full bg-white">
+  <div class="top-0 py-4 px-6 md:px-12 w-full bg-white border-b border-black">
     <div class="flex flex-row items-center justify-between">
       <img
         src="../assets/logo-no-background.svg"
         alt="logo."
-        class="w-3/6 lg:w-1/6"
+        class="w-3/6 md:w-2/6 lg:w-1/6"
       />
       <button @click="toggle()">
         <img
@@ -21,24 +18,25 @@
       v-if="isOpen"
       class="relative z-50 flex flex-col lg:flex-row justify-end m-12 text-lg md:text-3xl"
     >
-      <div v-if="authenticated" class="w-2/3 md:w-1/3 h-screen">
+    <div v-if="authenticated" class="w-2/3 md:w-1/3 h-screen">
+        <p class="flex flex-row mb-4">hello {{ loggedUsername }}</p>
         <router-link to="/">
-          <p class="border-b border-black hover:bg-[#9db4bd]">index</p>
+          <p :class="$route.name == 'index' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">index</p>
         </router-link>
         <router-link to="/home">
-          <p class="border-b border-black hover:bg-[#9db4bd]">home</p>
+          <p :class="$route.name == 'home' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">home</p>
         </router-link>
         <router-link to="/chat">
-          <p class="border-b border-black hover:bg-[#9db4bd]">chat</p>
+          <p :class="$route.name == 'chat' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">chat</p>
         </router-link>
         <router-link to="/my-profile">
-          <p class="border-b border-black hover:bg-[#9db4bd]">my-profile</p>
+          <p :class="$route.name == 'myprofile' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">my-profile</p>
         </router-link>
         <router-link to="/settings">
-          <p class="border-b border-black hover:bg-[#9db4bd]">settings</p>
+          <p :class="$route.name == 'settings' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">settings</p>
         </router-link>
-        <router-link to="/settings">
-          <p class="border-b border-black hover:bg-[#9db4bd]">about</p>
+        <router-link to="/about">
+          <p :class="$route.name == 'about' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">about</p>
         </router-link>
         <div class="mt-2">
           <Button class="hover:bg-red-400" @click="logout()">LOGOUT</Button>
@@ -46,13 +44,13 @@
       </div>
       <div v-else class="flex flex-col h-screen">
         <router-link to="/">
-          <div class="border-b border-black hover:bg-[#9db4bd]">index</div>
-        </router-link>
-        <router-link to="/home">
-          <div class="border-b border-black hover:bg-[#9db4bd]">test-home</div>
+          <p :class="$route.name == 'index' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">index</p>
         </router-link>
         <router-link to="/login">
-          <div class="border-b border-black hover:bg-[#9db4bd]">login</div>
+          <p :class="$route.name == 'login' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">login</p>
+        </router-link>
+        <router-link to="/about">
+        <div :class="$route.name == 'about' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">about</div>
         </router-link>
       </div>
     </div>
@@ -73,6 +71,7 @@ export default {
       isOpen: ref(false),
       userValid: false,
       authenticated: ref(false),
+      loggedUsername: ref('')
     };
   },
   methods: {
@@ -81,8 +80,9 @@ export default {
     },
     async logout() {
       try {
-        let success = await Auth.logout();
-        if (success == true) {
+        let response = await Auth.logout();
+        if (response == true) {
+          this.showUsername = response['username']
           this.$router.push({ name: "login" });
         }
       } catch (e) {
@@ -95,9 +95,12 @@ export default {
     async $route(to, from) {
       this.isOpen = false;
 
-      const user = this.auth.token;
+      const user = this.auth.getUserFromLocalStorage;
 
-      if (user) this.authenticated = true;
+      if (user) {
+        this.authenticated = true;
+        this.loggedUsername = user['username']
+      }
       else {
         this.authenticated = false;
       }

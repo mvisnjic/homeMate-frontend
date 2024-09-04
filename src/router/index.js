@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import index from "/src/views/index.vue";
 import login from "/src/views/login.vue";
-import home from "/src/views/home.vue";
 import chat from "/src/views/chat.vue";
 import about from "/src/views/about.vue";
 import settings from "/src/views/settings.vue";
@@ -24,10 +23,11 @@ const routes = [
     meta: { title: "login - " + defaultTitle },
   },
   {
-    path: "/home",
-    name: "home",
-    component: home,
-    meta: { title: "home - " + defaultTitle },
+    path: "/chat/:chat_id",
+    component: chat,
+    name: "dynamic-chat",
+    props: true,
+    meta: { title: "chat - " + defaultTitle },
   },
   {
     path: "/chat",
@@ -54,11 +54,11 @@ const routes = [
     meta: { title: "my-profile - " + defaultTitle },
   },
   {
-        path: '/:pathMatch(.*)*',
-        name: 'notfound',
-        component: notfound,
-        meta: { title: "404 oops - " + defaultTitle },
-    },
+    path: '/:pathMatch(.*)*',
+    name: 'notfound',
+    component: notfound,
+    meta: { title: "404 oops - " + defaultTitle },
+  },
 ];
 const router = createRouter({
   history: createWebHistory(),

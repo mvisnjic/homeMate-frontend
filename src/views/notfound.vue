@@ -4,7 +4,7 @@
   >
     <h1>PAGE NOT FOUND!</h1>
     <p>Oops something went wrong</p>
-    <router-link to="/home" class="hover:border-b border-b-black">Back to home.</router-link>
+    <router-link to="/" class="hover:border-b border-b-black">Back to index.</router-link>
   </div>
 </template>
 

@@ -23,11 +23,8 @@
         <router-link to="/">
           <p :class="$route.name == 'index' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">index</p>
         </router-link>
-        <router-link to="/home">
-          <p :class="$route.name == 'home' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">home</p>
-        </router-link>
         <router-link to="/chat">
-          <p :class="$route.name == 'chat' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">chat</p>
+          <p :class="$route.name == 'chat' || $route.name == 'dynamic-chat' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">chat</p>
         </router-link>
         <router-link to="/my-profile">
           <p :class="$route.name == 'myprofile' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">my-profile</p>
@@ -63,7 +60,7 @@ import { Auth } from "../services/index";
 import { ref } from "vue";
 
 export default {
-  name: "home",
+  name: "header",
   data() {
     return {
       auth: Auth.state,

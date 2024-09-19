@@ -1,7 +1,5 @@
 # homeMate - AI Home Assistant - frontend
 
-homeMate is an assistant to help users to maintain their households. Easy to use via chat.
+homeMate is an assistant that can solve math, write articles, recognize varius languages and be used for help in general. Easy to use via chat.
 
-_The idea is also to use it with voice commands_
-
-Link to project: https://github.com/mvisnjic/homeMate
+Link to backend-project: https://github.com/mvisnjic/homeMate/tree/it

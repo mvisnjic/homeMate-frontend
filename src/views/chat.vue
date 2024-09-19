@@ -25,7 +25,7 @@
           <p class="text-center pb-6">Ask me something.</p>
           <div class="flex flex-col">
             <button class="text-sm" @click="sendIntoInput('Can you show me python basics?')">Can you show me python basics? </button>
-            <button class="text-sm" @click="sendIntoInput('Can you show me python basics?')">Write me 5 best movies? </button>
+            <button class="text-sm" @click="sendIntoInput('Write me 5 best movies?')">Write me 5 best movies? </button>
             <button class="text-sm" @click="sendIntoInput('Can you solve x2 + x4 = x5. Where x = 101')">Can you solve x2 + x4 = x5. Where x = 101 </button>
             <button class="text-sm" @click="sendIntoInput('Capital of Croatia?')">Capital of Croatia? </button>
           </div>

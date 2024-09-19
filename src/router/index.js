@@ -41,18 +41,18 @@ const routes = [
     component: about,
     meta: { title: "about - " + defaultTitle },
   },
-  {
-    path: "/settings",
-    name: "settings",
-    component: settings,
-    meta: { title: "settings - " + defaultTitle },
-  },
-  {
-    path: "/my-profile",
-    name: "myprofile",
-    component: myprofile,
-    meta: { title: "my-profile - " + defaultTitle },
-  },
+  // {
+  //   path: "/settings",
+  //   name: "settings",
+  //   component: settings,
+  //   meta: { title: "settings - " + defaultTitle },
+  // },
+  // {
+  //   path: "/my-profile",
+  //   name: "myprofile",
+  //   component: myprofile,
+  //   meta: { title: "my-profile - " + defaultTitle },
+  // },
   {
     path: '/:pathMatch(.*)*',
     name: 'notfound',

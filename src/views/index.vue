@@ -9,7 +9,7 @@
   <div
     class="bg-white p-12 lg:p-24 w-full h-3/6 self-center flex flex-col gap-6 m-auto text-lg md:text-2xl"
   >
-    <p>This is master's degree final project made by Matej Visnjic at University of Jurja Dobrile in Pula.</p>
+    <p>This project for a <a href="https://fipu.unipu.hr/fipu/predmet/rir" class="hover:underline" target="_blank">course IT solution</a> made by Matej Visnjic at University of Jurja Dobrile in Pula.</p>
     <p>Menthor: <a target="_blank" href="https://fipu.unipu.hr/fipu/nikola.tankovic">Nikola Tanković.</a></p>
   </div>
   

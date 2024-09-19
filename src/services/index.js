@@ -1,7 +1,7 @@
 import axios from "axios";
 import router from '../router/index.js'
 
-const backend_url = "http://192.168.1.4:5000"
+const backend_url = "http://192.168.1.106:5000/"
 const homeMateAPI = axios.create({
   baseURL: backend_url,
   timeout: 15000,
@@ -255,9 +255,7 @@ let Chat = {
     let messagesListTemp = JSON.parse(JSON.stringify(msgList));
 
     messagesListTemp.unshift({
-      content: `I am ${user.username}, you are
-                 a private home assistant that can toggle a light, create alerts, manage calendar tasks, grocery list, fridge monitoring, recipes ideas, reminders, information like news and temperature, download & play music.
-                 Your name is homeMate. Behave like a normally bot, returning responses but if user wants some of functions to call then you need to respond on it like private home assistant. Do not respond only with success!`,
+      content: `You are a private home assistant that can solve math, write articles, recognize varius languages and be used for help in general. You are private assistant and act like that. You can normally behave like always but pay attention for user inputs. User name is ${user.username}`,
       role: 'system',
     });
 

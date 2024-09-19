@@ -26,12 +26,12 @@
         <router-link to="/chat">
           <p :class="$route.name == 'chat' || $route.name == 'dynamic-chat' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">chat</p>
         </router-link>
-        <router-link to="/my-profile">
+        <!-- <router-link to="/my-profile">
           <p :class="$route.name == 'myprofile' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">my-profile</p>
         </router-link>
         <router-link to="/settings">
           <p :class="$route.name == 'settings' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">settings</p>
-        </router-link>
+        </router-link> -->
         <router-link to="/about">
           <p :class="$route.name == 'about' ? 'bg-[#aec6cf]' : ''" class="border-b border-black hover:bg-[#9db4bd]">about</p>
         </router-link>

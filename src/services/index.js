@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '../router/index.js'
 
 const backend_url = 'http://192.168.1.12:5000'
-// const backend_url = "http://172.23.0.3:5000"
+// const backend_url = 'http://172.23.0.3:5000'
 const homeMateAPI = axios.create({
     baseURL: backend_url,
     timeout: 15000,
@@ -135,15 +135,12 @@ let Chat = {
 
         if (user) {
             try {
-                let response = await homeMateAPI.post(
-                    '/chat/getchats',
-                    {},
-                    {
-                        headers: {
-                            Authorization: `Bearer ${user.token.trim()}`,
-                        },
-                    }
-                )
+                let response = await homeMateAPI.get('/chat/chats', {
+                    headers: {
+                        Authorization: `Bearer ${user.token.trim()}`,
+                        'Content-Type': 'application/json',
+                    },
+                })
                 if (response) {
                     return response
                 }
@@ -162,12 +159,10 @@ let Chat = {
     },
     async getMessages(chat_id, page = 0, per_page = 15) {
         let user = Auth.getUserFromLocalStorage()
-
         if (user) {
             try {
-                let response = await homeMateAPI.post(
-                    '/chat/getmessages',
-                    JSON.stringify({ chat_id, page, per_page }),
+                let response = await homeMateAPI.get(
+                    `/chat/messages?chat_id=${chat_id}&page=${page}&per_page=${per_page}`,
                     {
                         headers: {
                             Authorization: `Bearer ${user.token.trim()}`,
@@ -252,7 +247,7 @@ let Chat = {
         }
     },
 
-    async generateResponse(message, chat_id, updateCallback, msgList) {
+    async generateResponse(message, chat_id, updateCallback, msgList, file) {
         const user = Auth.getUserFromLocalStorage()
         if (chat_id > 0) {
             localStorage.setItem('chat_id', chat_id)
@@ -260,33 +255,47 @@ let Chat = {
 
         let messagesListTemp = JSON.parse(JSON.stringify(msgList))
 
-        // messagesListTemp.unshift({
-        //   content: `You are a private home assistant that can solve math, write articles, recognize varius languages and be used for help in general. You are private assistant and act like that. You can normally behave like always but pay attention for user inputs. When a user says something like "Turn on the kitchen light, download music, get news, playsomething", respond with: {"action": "toggle_light", "location": "kitchen", "state": "on"}, but don't respond if user input is not user intention. User name is ${user.username}.`,
-        //   role: 'system',
-        // });
-
         messagesListTemp.push({
             content: message,
             role: 'user',
         })
 
         try {
-            const response = await fetch(`${backend_url}/chat/generate`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${user.token.trim()}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    model: 'homeMate-model',
-                    user_message: message,
-                    chat_id: parseInt(chat_id),
-                    user_id: user.id,
-                    messages: messagesListTemp,
-                    username: user.username,
-                    // stream: true,
-                }),
-            })
+            let response
+
+            if (file) {
+                const formData = new FormData()
+                formData.append('file', file)
+                formData.append('model', 'homeMate-model')
+                formData.append('user_message', message)
+                formData.append('chat_id', parseInt(chat_id))
+                formData.append('user_id', user.id)
+                formData.append('username', user.username)
+                // formData.append('messages', JSON.stringify(messagesListTemp))
+
+                response = await fetch(`${backend_url}/chat/generate_pdf`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${user.token.trim()}`,
+                    },
+                    body: formData,
+                })
+            } else {
+                response = await fetch(`${backend_url}/chat/generate`, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${user.token.trim()}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'homeMate-model',
+                        user_message: message,
+                        chat_id: parseInt(chat_id),
+                        user_id: user.id,
+                        messages: messagesListTemp,
+                        username: user.username,
+                    }),
+                })
 
             if (response.status === 401) {
                 router.push({ name: 'login' })
@@ -317,7 +326,6 @@ let Chat = {
                         try {
                             const json = JSON.parse(part.trim())
                             fullResponse += json.response
-                            console.log('jssssssssson', json.response)
                             if (json.error) {
                                 fullResponse = json.error
                             }
@@ -330,7 +338,6 @@ let Chat = {
                                     )
                                 }
                                 updateCallback(fullResponse)
-                                console.log(fullResponse)
                             }
                         } catch (e) {
                             console.error('Failed to parse chunk:', e)

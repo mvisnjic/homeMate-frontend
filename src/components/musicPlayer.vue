@@ -1,9 +1,5 @@
 <template>
-    <div
-        class="music-player p-2 bg-gray-200 overflow-y-auto overflow-x-auto w-full h-full"
-    >
-        <h2 class="inline">🎧 {{ currentTitle }}</h2>
-
+    <div class="p-4 bg-gray-200 overflow-y-auto overflow-x-auto w-full h-full">
         <audio
             class="w-full"
             ref="player"
@@ -15,17 +11,47 @@
             Your browser does not support the audio element.
         </audio>
 
-        <div class="controls"></div>
-
-        <ul class="track-list">
-            <li
-                v-for="(track, i) in shuffledTracks"
-                :key="track"
-                :class="{ active: i === currentIndex }"
-                @click="setTrack(i)"
+        <div class="mt-4 mb-2">
+            <button
+                @click="showTrackList = !showTrackList"
+                class="bg-[#aec6cf] text-white px-3 py-1 rounded hover:bg-[#9db4bd]"
             >
-                {{ track }}
-            </li>
+                {{ showTrackList ? 'Hide Track List' : 'Show Track List' }}
+            </button>
+        </div>
+
+        <ul class="track-list space-y-1">
+            <template v-if="showTrackList">
+                <li
+                    v-for="(track, i) in shuffledTracks"
+                    :key="track"
+                    class="flex items-center justify-between bg-white px-3 py-2 rounded shadow-sm hover:bg-gray-100"
+                    :class="{ 'border border-[#9db4bd]': i === currentIndex }"
+                >
+                    <span class="truncate w-4/5" :title="track">
+                        {{ track }}
+                    </span>
+                    <button
+                        class="bg-[#aec6cf] text-white px-2 py-1 rounded hover:bg-[#9db4bd]"
+                        @click="setTrack(i)"
+                    >
+                        {{ i === currentIndex ? '▶ Playing' : 'Play' }}
+                    </button>
+                </li>
+            </template>
+
+            <template v-else>
+                <li
+                    class="bg-white px-3 py-2 rounded shadow-sm flex justify-between"
+                >
+                    <span
+                        class="truncate"
+                        :title="shuffledTracks[currentIndex]"
+                    >
+                        🎵 {{ shuffledTracks[currentIndex] || 'No track' }}
+                    </span>
+                </li>
+            </template>
         </ul>
     </div>
 </template>
@@ -42,6 +68,7 @@ const repeatMode = ref(false)
 const volume = ref(1)
 const isMuted = ref(false)
 const currentTitle = ref('')
+const showTrackList = ref(true)
 
 const fetchTracks = async () => {
     const res = await fetch('http://192.168.1.12:5000/chat/music/list')
@@ -80,13 +107,6 @@ const nextTrack = () => {
     }
 }
 
-const prevTrack = () => {
-    const prev =
-        (currentIndex.value - 1 + shuffledTracks.value.length) %
-        shuffledTracks.value.length
-    setTrack(prev)
-}
-
 const playNextTrack = () => {
     nextTrack()
 }
@@ -97,35 +117,12 @@ const props = defineProps({
 
 watch(
     () => props.refreshTrigger,
-    (val) => {
-        fetchTracks() // or whatever method you want to re-run
+    () => {
+        fetchTracks()
     }
 )
 
-onMounted(async () => {
+onMounted(() => {
     fetchTracks()
 })
 </script>
-
-<style scoped>
-.music-player {
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
-}
-.controls {
-    margin: 10px 0;
-}
-.track-list {
-    list-style: none;
-    padding: 0;
-}
-.track-list li {
-    cursor: pointer;
-    padding: 5px;
-}
-.track-list li.active {
-    font-weight: bold;
-    color: #2196f3;
-}
-</style>

@@ -1,9 +1,13 @@
 <template>
     <div
-        class="h-screen max-h-[80%] md:max-w-[85%] w-full p-6 lg:p-12 flex flex-col self-center gap-6 text-lg md:text-2xl"
+        class="h-1/2 md:max-w-[85%] w-full lg:p-12 flex flex-col self-center gap-6 text-lg md:text-2xl overflow-y-auto"
     >
         <h1 class="text-xl md:text-3xl">hello, {{ auth['username'] }}.</h1>
-
+        <musicPlayer :refresh-trigger="refreshFlag" />
+    </div>
+    <div
+        class="h-screen max-h-[80%] md:max-w-[85%] w-full lg:p-12 flex flex-col self-center gap-6 text-lg md:text-2xl"
+    >
         <div class="flex flex-row h-full w-full overflow-y-auto">
             <chatListBox
                 class="md:w-1/4 hidden md:flex"
@@ -104,39 +108,52 @@
                 </div>
                 <div
                     v-if="!isChatMenuOpen"
-                    class="sticky bg-white flex flex-row items-center gap-x-2 md:gap-6 justify-center text-lg bottom-0 p-4 lg:px-16 lg:pb-16 lg:pt-2 w-full opacity-80"
+                    class="md:sticky md:bg-white md:flex md:flex-row md:items-center gap-4 justify-center md:text-lg p-4 lg:px-16 lg:pb-16 lg:pt-2 w-full opacity-80"
                 >
-                    <textarea
-                        :disabled="isSendingMessage"
-                        @keypress.enter.prevent="sendMessage()"
-                        v-model="input"
-                        class="border-b border-black resize-none w-3/4 max-h-10"
-                        rows="2"
-                        cols="80"
-                    ></textarea>
-                    <button
-                        :disabled="isSendingMessage"
-                        @click.prevent="sendMessage()"
-                        :hidden="input.length < 2"
-                    >
-                        <img
-                            src="../assets/send-icon.svg"
-                            alt="delete-chats"
-                            class="w-6 h-6"
+                    <div class="flex flex-col border p-2 border-black">
+                        <div class="flex flex-row">
+                            <textarea
+                                :disabled="isSendingMessage"
+                                @keypress.enter.prevent="sendMessage()"
+                                v-model="input"
+                                class="outline-none resize-none w-full max-h-14"
+                                rows="2"
+                                cols="80"
+                            >
+                            </textarea>
+                            <div class="place-self-center">
+                                <button
+                                    :disabled="isSendingMessage"
+                                    @click.prevent="sendMessage()"
+                                    :hidden="input.length < 2"
+                                >
+                                    <img
+                                        src="../assets/send-icon.svg"
+                                        alt="delete-chats"
+                                        class="w-6 h-6"
+                                    />
+                                </button>
+                                <button
+                                    :disabled="true"
+                                    :hidden="input.length > 1"
+                                >
+                                    <img
+                                        src="../assets/sent-icon.svg"
+                                        alt="delete-chats"
+                                        class="w-6 h-6"
+                                    />
+                                </button>
+                            </div>
+                        </div>
+                        <input
+                            type="file"
+                            @change="handleFileUpload"
+                            accept=".pdf"
+                            class=""
                         />
-                    </button>
-                    <button :disabled="true" :hidden="input.length > 1">
-                        <img
-                            src="../assets/sent-icon.svg"
-                            alt="delete-chats"
-                            class="w-6 h-6"
-                        />
-                    </button>
+                    </div>
                 </div>
                 <div ref="bottom" class="self-center"></div>
-            </div>
-            <div class="w-2/6">
-                <musicPlayer :refresh-trigger="refreshFlag" />
             </div>
         </div>
     </div>
@@ -177,12 +194,25 @@ export default {
         const chat_id = ref(null)
         const chatsIsLoading = ref(false)
         const isChatMenuOpen = ref(false)
+        const isMusicPlayerOpen = ref(false)
         const refreshFlag = ref(false)
 
         onMounted(async () => {
             await getChats()
             triggerMusicPlayerRefresh()
         })
+        const selectedFile = ref(null)
+        const uploadedFileId = ref(null)
+
+        const handleFileUpload = (e) => {
+            const file = e.target.files[0]
+            if (file && file.type === 'application/pdf') {
+                selectedFile.value = file
+                console.log(selectedFile.value)
+            } else {
+                alert('Only PDF files are allowed')
+            }
+        }
 
         const getChats = async () => {
             try {
@@ -229,20 +259,30 @@ export default {
 
                 try {
                     scrollToBottom()
-
-                    if (inputValueBackup.value != '') {
+                    console.log(selectedFile.value)
+                    // const file = handleFileUpload()
+                    if (inputValueBackup.value != '' && selectedFile.value) {
+                        const response = await Chat.generateResponse(
+                            inputValueBackup.value,
+                            route.params.chat_id,
+                            updateResponse,
+                            messagesList.value,
+                            selectedFile.value
+                        )
+                    } else {
                         const response = await Chat.generateResponse(
                             inputValueBackup.value,
                             route.params.chat_id,
                             updateResponse,
                             messagesList.value
                         )
-                        chat_id.value = localStorage.getItem('chat_id')
-                        router.push({ path: `/chat/${chat_id.value}` })
-                        await getChats()
                     }
+                    chat_id.value = localStorage.getItem('chat_id')
+                    router.push({ path: `/chat/${chat_id.value}` })
+                    await getChats()
                     updateResponse('')
                     isSendingMessage.value = false
+                    selectedFile.value = null
                     chat_id.value = localStorage.removeItem('chat_id')
                 } catch (error) {
                     input.value = inputValueBackup.value
@@ -299,6 +339,10 @@ export default {
 
         const toggleChatMenu = () => {
             isChatMenuOpen.value = !isChatMenuOpen.value
+        }
+
+        const toggleMusicPlayer = () => {
+            isMusicPlayerOpen.value = !isMusicPlayerOpen.value
         }
 
         const sendIntoInput = (message) => {
@@ -366,6 +410,10 @@ export default {
             chatContainer,
             refreshFlag,
             triggerMusicPlayerRefresh,
+            selectedFile,
+            handleFileUpload,
+            isMusicPlayerOpen,
+            toggleMusicPlayer,
         }
     },
 }

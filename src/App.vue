@@ -4,7 +4,7 @@ import Footer from './components/Footer.vue'
 </script>
 
 <template>
-    <div class="flex flex-col justify-between h-screen" id="app">
+    <div class="flex flex-col justify-between h-max" id="app">
         <Header />
         <router-view />
         <Footer />

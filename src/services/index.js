@@ -52,7 +52,7 @@ let Auth = {
                     return true
                 }
             } catch (error) {
-                console.error('Logout failed:', error)
+                console.error('Logout failed:', err)
                 return false
             }
         }
@@ -130,6 +130,10 @@ let Auth = {
 }
 
 let Chat = {
+    getBackendUrl() {
+        return backend_url
+    },
+
     async getChats() {
         let user = Auth.getUserFromLocalStorage()
 
@@ -296,6 +300,7 @@ let Chat = {
                         username: user.username,
                     }),
                 })
+            }
 
             if (response.status === 401) {
                 router.push({ name: 'login' })

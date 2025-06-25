@@ -1,12 +1,6 @@
 <template>
     <div class="p-4 bg-gray-200 overflow-y-auto overflow-x-auto w-full h-full">
-        <audio
-            class="w-full"
-            ref="player"
-            controls
-            @ended="playNextTrack"
-            @volumechange="updateVolumeState"
-        >
+        <audio class="w-full" ref="player" controls @ended="playNextTrack">
             <source :src="currentTrackUrl" type="audio/mpeg" />
             Your browser does not support the audio element.
         </audio>
@@ -28,15 +22,15 @@
                     class="flex items-center justify-between bg-white px-3 py-2 rounded shadow-sm hover:bg-gray-100"
                     :class="{ 'border border-[#9db4bd]': i === currentIndex }"
                 >
+                    <button
+                        class="bg-[#aec6cf] text-white px-2 rounded hover:bg-[#9db4bd]"
+                        @click="setTrack(i)"
+                    >
+                        {{ i === currentIndex && player ? '▶' : 'Play' }}
+                    </button>
                     <span class="truncate w-4/5" :title="track">
                         {{ track }}
                     </span>
-                    <button
-                        class="bg-[#aec6cf] text-white px-2 py-1 rounded hover:bg-[#9db4bd]"
-                        @click="setTrack(i)"
-                    >
-                        {{ i === currentIndex ? '▶ Playing' : 'Play' }}
-                    </button>
                 </li>
             </template>
 
@@ -58,25 +52,28 @@
 
 <script setup>
 import { ref, onMounted, nextTick, watch } from 'vue'
-
+import { Chat } from '../services'
 const player = ref(null)
 const trackList = ref([])
 const shuffledTracks = ref([])
 const currentTrackUrl = ref('')
 const currentIndex = ref(0)
 const repeatMode = ref(false)
-const volume = ref(1)
-const isMuted = ref(false)
 const currentTitle = ref('')
 const showTrackList = ref(true)
+const backend_url = Chat.getBackendUrl()
+const shouldRestart = ref(null)
 
 const fetchTracks = async () => {
-    const res = await fetch('http://192.168.1.12:5000/chat/music/list')
+    const res = await fetch(`${backend_url}/chat/music/list`)
     trackList.value = await res.json()
-    shuffledTracks.value = shuffleArray(trackList.value)
+    shuffledTracks.value = trackList.value
 
     const savedIndex = parseInt(localStorage.getItem('lastTrackIndex'), 10)
-    if (!isNaN(savedIndex) && savedIndex < shuffledTracks.value.length) {
+    console.log(shouldRestart.value)
+    console.log(savedIndex)
+    if (!isNaN(savedIndex) || savedIndex < shuffleArray.value.length) {
+        currentIndex.value = savedIndex
         setTrack(savedIndex)
     } else {
         setTrack(0)
@@ -88,7 +85,7 @@ const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5)
 const setTrack = (index) => {
     currentIndex.value = index
     localStorage.setItem('lastTrackIndex', index)
-    currentTrackUrl.value = `http://192.168.1.12:5000/chat/music/${shuffledTracks.value[index]}`
+    currentTrackUrl.value = `${backend_url}/chat/music/${shuffledTracks.value[index]}`
     nextTick(() => {
         if (player.value) {
             player.value.load()
@@ -124,5 +121,6 @@ watch(
 
 onMounted(() => {
     fetchTracks()
+    // restartMusicPlayer()
 })
 </script>

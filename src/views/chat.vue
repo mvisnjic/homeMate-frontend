@@ -1,160 +1,161 @@
 <template>
-    <div
-        class="h-1/2 md:max-w-[85%] w-full lg:p-12 flex flex-col self-center gap-6 text-lg md:text-2xl overflow-y-auto"
-    >
-        <h1 class="text-xl md:text-3xl">hello, {{ auth['username'] }}.</h1>
-        <musicPlayer :refresh-trigger="refreshFlag" />
-    </div>
-    <div
-        class="h-screen max-h-[80%] md:max-w-[85%] w-full lg:p-12 flex flex-col self-center gap-6 text-lg md:text-2xl"
-    >
-        <div class="flex flex-row h-full w-full overflow-y-auto">
-            <chatListBox
-                class="md:w-1/4 hidden md:flex"
-                :chats="chatList"
-                :error="chatError"
-                :isLoading="chatsIsLoading"
-                @deleteChat="deleteChat"
-            />
-            <div
-                class="relative bg-white h-full text-md md:text-2xl flex flex-col self-end overflow-auto w-full"
-            >
+    <div class="flex flex-col lg:flex-row">
+        <div
+            class="h-[85vh] lg:max-w-[85%] w-full lg:w-[70%] lg:p-6 flex flex-col self-center gap-6 text-lg md:text-2xl"
+        >
+            <h1 class="text-xl md:text-3xl p-4">chatbot.</h1>
+            <div class="flex flex-row h-full w-full overflow-y-auto">
+                <chatListBox
+                    class="md:w-1/4 hidden md:flex"
+                    :chats="chatList"
+                    :error="chatError"
+                    :isLoading="chatsIsLoading"
+                    @deleteChat="deleteChat"
+                />
                 <div
-                    class="sticky bg-white top-0 flex flex-col md:hidden md:flex-row border-b border-black p-4"
-                    :class="isChatMenuOpen ? 'opacity-100' : 'opacity-70'"
+                    class="relative bg-white h-full text-md md:text-2xl flex flex-col self-end overflow-auto w-full"
                 >
-                    <button @click="toggleChatMenu()">
-                        <img
-                            src="../assets/chats-icon.svg"
-                            alt="select-chats"
-                            class="w-6 h-6 self-end"
-                        />
-                    </button>
-                    <div v-if="isChatMenuOpen">
-                        <chatListBox
-                            class="md:hidden"
-                            :chats="chatList"
-                            :error="chatError"
-                            :isLoading="chatsIsLoading"
-                            @deleteChat="deleteChat"
-                        />
-                    </div>
-                </div>
-                <div
-                    class="p-6 lg:px-16 lg:pb-6 lg:pt-4 text-center text-sm text-red-600"
-                    v-if="messagesError"
-                >
-                    {{ messagesError }}
-                </div>
-                <div
-                    class="self-center h-full p-6 lg:px-16 lg:pb-6 lg:pt-4 content-center"
-                    v-if="!route.params.chat_id && !isSendingMessage"
-                >
-                    <p class="text-center pb-6">Ask me something.</p>
-                    <div class="flex flex-col">
-                        <button
-                            class="text-sm"
-                            @click="
-                                sendIntoInput('Can you show me python basics?')
-                            "
-                        >
-                            Can you show me python basics?
+                    <div
+                        class="sticky bg-white top-0 flex flex-col md:hidden md:flex-row border-b border-black p-4"
+                        :class="isChatMenuOpen ? 'opacity-100' : 'opacity-70'"
+                    >
+                        <button @click="toggleChatMenu()">
+                            <img
+                                src="../assets/chats-icon.svg"
+                                alt="select-chats"
+                                class="w-6 h-6 self-end"
+                            />
                         </button>
-                        <button
-                            class="text-sm"
-                            @click="sendIntoInput('Write me 5 best movies?')"
-                        >
-                            Write me 5 best movies?
-                        </button>
-                        <button
-                            class="text-sm"
-                            @click="
-                                sendIntoInput(
-                                    'Can you solve x2 + x4 = x5. Where x = 101'
-                                )
-                            "
-                        >
-                            Can you solve x2 + x4 = x5. Where x = 101
-                        </button>
-                        <button
-                            class="text-sm"
-                            @click="sendIntoInput('Capital of Croatia?')"
-                        >
-                            Capital of Croatia?
-                        </button>
-                    </div>
-                </div>
-
-                <div
-                    class="p-6 w-full"
-                    v-for="(message, i) of messagesList"
-                    :key="i"
-                >
-                    <assistantChat
-                        :message="message.content"
-                        v-if="message.sender_username === 'homemate'"
-                    />
-                    <userChatBox :input="message.content" v-else />
-                </div>
-                <div class="p-6 w-full" v-if="isSendingMessage">
-                    <userChatBox
-                        :input="inputValueBackup"
-                        v-if="isSendingMessage"
-                    />
-                    <assistantChat
-                        :message="fullResponse"
-                        v-if="isSendingMessage"
-                    />
-                </div>
-                <div
-                    v-if="!isChatMenuOpen"
-                    class="md:sticky md:bg-white md:flex md:flex-row md:items-center gap-4 justify-center md:text-lg p-4 lg:px-16 lg:pb-16 lg:pt-2 w-full opacity-80"
-                >
-                    <div class="flex flex-col border p-2 border-black">
-                        <div class="flex flex-row">
-                            <textarea
-                                :disabled="isSendingMessage"
-                                @keypress.enter.prevent="sendMessage()"
-                                v-model="input"
-                                class="outline-none resize-none w-full max-h-14"
-                                rows="2"
-                                cols="80"
-                            >
-                            </textarea>
-                            <div class="place-self-center">
-                                <button
-                                    :disabled="isSendingMessage"
-                                    @click.prevent="sendMessage()"
-                                    :hidden="input.length < 2"
-                                >
-                                    <img
-                                        src="../assets/send-icon.svg"
-                                        alt="delete-chats"
-                                        class="w-6 h-6"
-                                    />
-                                </button>
-                                <button
-                                    :disabled="true"
-                                    :hidden="input.length > 1"
-                                >
-                                    <img
-                                        src="../assets/sent-icon.svg"
-                                        alt="delete-chats"
-                                        class="w-6 h-6"
-                                    />
-                                </button>
-                            </div>
+                        <div v-if="isChatMenuOpen">
+                            <chatListBox
+                                class="md:hidden"
+                                :chats="chatList"
+                                :error="chatError"
+                                :isLoading="chatsIsLoading"
+                                @deleteChat="deleteChat"
+                            />
                         </div>
-                        <input
-                            type="file"
-                            @change="handleFileUpload"
-                            accept=".pdf"
-                            class=""
+                    </div>
+                    <div
+                        class="p-6 lg:px-16 lg:pb-6 lg:pt-4 text-center text-sm text-red-600"
+                        v-if="messagesError"
+                    >
+                        {{ messagesError }}
+                    </div>
+                    <div
+                        class="self-center h-full p-6 lg:px-16 lg:pb-6 lg:pt-4 content-center"
+                        v-if="!route.params.chat_id && !isSendingMessage"
+                    >
+                        <p class="text-center pb-6">Ask me something.</p>
+                        <div class="flex flex-col">
+                            <button
+                                class="text-sm"
+                                @click="
+                                    sendIntoInput(
+                                        'Can you show me python basics?'
+                                    )
+                                "
+                            >
+                                Can you show me python basics?
+                            </button>
+                            <button
+                                class="text-sm"
+                                @click="sendIntoInput('Get weather in Pula.')"
+                            >
+                                Get weather in Pula.
+                            </button>
+                            <button
+                                class="text-sm"
+                                @click="sendIntoInput('Turn on heating.')"
+                            >
+                                Turn on heating.
+                            </button>
+                            <button
+                                class="text-sm"
+                                @click="sendIntoInput('Capital of Croatia?')"
+                            >
+                                Capital of Croatia?
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        class="p-6 w-full"
+                        v-for="(message, i) of messagesList"
+                        :key="i"
+                    >
+                        <assistantChat
+                            :message="message.content"
+                            v-if="message.sender_username === 'homemate'"
+                        />
+                        <userChatBox :input="message.content" v-else />
+                    </div>
+                    <div class="p-6 w-full" v-if="isSendingMessage">
+                        <userChatBox
+                            :input="inputValueBackup"
+                            v-if="isSendingMessage"
+                        />
+                        <assistantChat
+                            :message="fullResponse"
+                            v-if="isSendingMessage"
                         />
                     </div>
+                    <div
+                        v-if="!isChatMenuOpen"
+                        class="md:sticky md:bg-white md:flex md:flex-row md:items-center gap-4 justify-center md:text-lg p-4 lg:px-16 lg:pb-16 lg:pt-2 w-full opacity-80"
+                    >
+                        <div class="flex flex-col border p-2 border-black">
+                            <div class="flex flex-row">
+                                <textarea
+                                    :disabled="isSendingMessage"
+                                    @keypress.enter.prevent="sendMessage()"
+                                    v-model="input"
+                                    class="outline-none resize-none w-full max-h-14"
+                                    rows="2"
+                                    cols="80"
+                                >
+                                </textarea>
+                                <div class="place-self-center">
+                                    <button
+                                        :disabled="isSendingMessage"
+                                        @click.prevent="sendMessage()"
+                                        :hidden="input.length < 2"
+                                    >
+                                        <img
+                                            src="../assets/send-icon.svg"
+                                            alt="delete-chats"
+                                            class="w-6 h-6"
+                                        />
+                                    </button>
+                                    <button
+                                        :disabled="true"
+                                        :hidden="input.length > 1"
+                                    >
+                                        <img
+                                            src="../assets/sent-icon.svg"
+                                            alt="delete-chats"
+                                            class="w-6 h-6"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                            <input
+                                type="file"
+                                @change="handleFileUpload"
+                                accept=".pdf"
+                                class=""
+                            />
+                        </div>
+                    </div>
+                    <div ref="bottom" class="self-center"></div>
                 </div>
-                <div ref="bottom" class="self-center"></div>
             </div>
+        </div>
+        <div
+            class="lg:h-[85vh] lg:max-w-[85%] w-full p-4 lg:py-6 lg:pr-6 flex flex-col self-center gap-6 text-lg md:text-2xl overflow-y-auto pt-6 bg-[#aec6cf]"
+        >
+            <h1 class="text-xl md:text-3xl pt-6">music player.</h1>
+            <musicPlayer :refresh-trigger="refreshFlag" />
         </div>
     </div>
 </template>
@@ -199,7 +200,6 @@ export default {
 
         onMounted(async () => {
             await getChats()
-            triggerMusicPlayerRefresh()
         })
         const selectedFile = ref(null)
         const uploadedFileId = ref(null)
@@ -383,9 +383,6 @@ export default {
                 messagesError.value = ''
             }
         )
-        const triggerMusicPlayerRefresh = () => {
-            refreshFlag.value = !refreshFlag.value
-        }
         return {
             input,
             inputValueBackup,
@@ -409,7 +406,6 @@ export default {
             isOnBottom,
             chatContainer,
             refreshFlag,
-            triggerMusicPlayerRefresh,
             selectedFile,
             handleFileUpload,
             isMusicPlayerOpen,

@@ -1,9 +1,15 @@
 <template>
     <div class="flex flex-col lg:flex-row">
         <div
-            class="h-[85vh] lg:max-w-[85%] w-full lg:w-[70%] lg:p-6 flex flex-col self-center gap-6 text-lg md:text-2xl"
+            class="lg:h-[85vh] lg:max-w-[85%] w-full p-4 lg:py-6 lg:pr-6 flex flex-col self-center gap-6 text-lg md:text-2xl overflow-y-auto pt-6 bg-[#aec6cf]"
         >
-            <h1 class="text-xl md:text-3xl p-4">chatbot.</h1>
+            <h1 class="text-xl md:text-3xl pt-4">music player.</h1>
+            <musicPlayer :refresh-trigger="refreshFlag" />
+        </div>
+        <div
+            class="h-[85vh] lg:max-w-[85%] w-full lg:w-[70%] lg:p-6 flex flex-col self-center gap-6 text-lg md:text-2xl bg-[#aec6cf] pb-6"
+        >
+            <h1 class="text-xl md:text-3xl pt-4">chatbot.</h1>
             <div class="flex flex-row h-full w-full overflow-y-auto">
                 <chatListBox
                     class="md:w-1/4 hidden md:flex"
@@ -151,12 +157,6 @@
                 </div>
             </div>
         </div>
-        <div
-            class="lg:h-[85vh] lg:max-w-[85%] w-full p-4 lg:py-6 lg:pr-6 flex flex-col self-center gap-6 text-lg md:text-2xl overflow-y-auto pt-6 bg-[#aec6cf]"
-        >
-            <h1 class="text-xl md:text-3xl pt-6">music player.</h1>
-            <musicPlayer :refresh-trigger="refreshFlag" />
-        </div>
     </div>
 </template>
 
@@ -208,7 +208,6 @@ export default {
             const file = e.target.files[0]
             if (file && file.type === 'application/pdf') {
                 selectedFile.value = file
-                console.log(selectedFile.value)
             } else {
                 alert('Only PDF files are allowed')
             }
@@ -259,8 +258,6 @@ export default {
 
                 try {
                     scrollToBottom()
-                    console.log(selectedFile.value)
-                    // const file = handleFileUpload()
                     if (inputValueBackup.value != '' && selectedFile.value) {
                         const response = await Chat.generateResponse(
                             inputValueBackup.value,

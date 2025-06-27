@@ -14,12 +14,12 @@
             </button>
         </div>
 
-        <ul class="track-list space-y-1">
+        <ul class="space-y-1">
             <template v-if="showTrackList">
                 <li
                     v-for="(track, i) in shuffledTracks"
                     :key="track"
-                    class="flex items-center justify-between bg-white px-3 py-2 rounded shadow-sm hover:bg-gray-100"
+                    class="flex items-center justify-between bg-white px-3 py-2 rounded shadow-sm hover:bg-gray-100 gap-2"
                     :class="{ 'border border-[#9db4bd]': i === currentIndex }"
                 >
                     <button
@@ -62,16 +62,13 @@ const repeatMode = ref(false)
 const currentTitle = ref('')
 const showTrackList = ref(true)
 const backend_url = Chat.getBackendUrl()
-const shouldRestart = ref(null)
 
 const fetchTracks = async () => {
-    const res = await fetch(`${backend_url}/chat/music/list`)
-    trackList.value = await res.json()
+    const res = await Chat.getMusicList()
+    trackList.value = await res
     shuffledTracks.value = trackList.value
 
     const savedIndex = parseInt(localStorage.getItem('lastTrackIndex'), 10)
-    console.log(shouldRestart.value)
-    console.log(savedIndex)
     if (!isNaN(savedIndex) || savedIndex < shuffleArray.value.length) {
         currentIndex.value = savedIndex
         setTrack(savedIndex)
@@ -82,10 +79,10 @@ const fetchTracks = async () => {
 
 const shuffleArray = (array) => [...array].sort(() => Math.random() - 0.5)
 
-const setTrack = (index) => {
+const setTrack = async (index) => {
     currentIndex.value = index
     localStorage.setItem('lastTrackIndex', index)
-    currentTrackUrl.value = `${backend_url}/chat/music/${shuffledTracks.value[index]}`
+    currentTrackUrl.value = await Chat.getSongUrl(shuffledTracks.value[index])
     nextTick(() => {
         if (player.value) {
             player.value.load()
@@ -121,6 +118,5 @@ watch(
 
 onMounted(() => {
     fetchTracks()
-    // restartMusicPlayer()
 })
 </script>

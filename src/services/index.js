@@ -134,6 +134,71 @@ let Chat = {
         return backend_url
     },
 
+    async getMusicList() {
+        let user = Auth.getUserFromLocalStorage()
+
+        if (user) {
+            try {
+                let response = await homeMateAPI.get('/chat/music/list', {
+                    headers: {
+                        Authorization: `Bearer ${user.token.trim()}`,
+                        'Content-Type': 'application/json',
+                    },
+                })
+                if (response) {
+                    return response.data
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    router.push({ path: '/login' })
+                }
+                if (error.response && error.response.status === 404) {
+                    console.error('no music found.')
+                    return false
+                }
+                console.error('Get music list failed:', error)
+                return false
+            }
+        }
+    },
+
+    async getSongUrl(fileName) {
+        let user = Auth.getUserFromLocalStorage()
+
+        if (user) {
+            try {
+                const response = await fetch(
+                    `${backend_url}/chat/music/${fileName}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${user.token.trim()}`,
+                        },
+                    }
+                )
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        router.push({ path: '/login' })
+                    }
+                    throw new Error('Unauthorized or file not found')
+                }
+
+                const blob = await response.blob()
+                return URL.createObjectURL(blob)
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    router.push({ path: '/login' })
+                }
+                if (error.response && error.response.status === 404) {
+                    console.error('no music found.')
+                    return false
+                }
+                console.error('Get music list failed:', error)
+                return false
+            }
+        }
+    },
+
     async getChats() {
         let user = Auth.getUserFromLocalStorage()
 
@@ -224,10 +289,9 @@ let Chat = {
 
     async deleteChat(chat_id) {
         const user = Auth.getUserFromLocalStorage()
-        console.log(user)
         if (user && chat_id) {
             try {
-                let response = homeMateAPI.delete('chat/delete', {
+                let response = homeMateAPI.delete('chat/chats', {
                     headers: {
                         Authorization: `Bearer ${user.token.trim()}`,
                     },
@@ -336,7 +400,6 @@ let Chat = {
                             }
                             if (updateCallback) {
                                 if (json.chat_id) {
-                                    console.log(json.chat_id)
                                     localStorage.setItem(
                                         'chat_id',
                                         json.chat_id
